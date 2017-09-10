@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  django:
+    build: .
+    env_file:
+      - .env_publisher
+    tty: true
+    links:
+      - 'database:db'
+    volumes:
+      - ./:/app
+    entrypoint: /app/entrypoint.sh
+    networks:
+      - collector
+    depends_on:
+      - database
+
+  database:
+    image: postgres:10-beta4
+    volumes:
+      - .postgresql.conf:/postgresql.conf
+    networks:
+      - collector
+    command: postgres -c config_file=/postgresql.conf
+
+
+networks:
+  collector:
+    external: true

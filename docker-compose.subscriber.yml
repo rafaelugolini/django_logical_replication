@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  subscriber:
+    build: .
+    env_file:
+      - .env_subscriber
+    tty: true
+    volumes:
+      - ./:/app
+    entrypoint: /app/entrypoint.sh
+    networks:
+      - collector
+    depends_on:
+      - database
+    ports:
+      - '8000:8000'
+    links:
+      - 'database:db'
+
+  database:
+    image: postgres:10-beta4
+    volumes:
+      - .postgresql.conf:/postgresql.conf
+    networks:
+      - collector
+    ports:
+      - '5432:5432'
+    command: postgres -c config_file=/postgresql.conf
+
+networks:
+  collector:
+    external: true
